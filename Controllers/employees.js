@@ -1,4 +1,5 @@
-import Employees from '../Models/employeesModel.js';
+import { Employees } from '../Models/employeesModel';
+import { Positions } from '../Models/positionsModel';
 
 exports.findAll = (req, res) => {
   Employees.find({}).exec((err, employees) => {
@@ -18,20 +19,21 @@ exports.findById = (req, res) => {
 
     res.status(200).send({ success: employee });
   }).catch((err) => {
-    console.log('unable to save to database ' + err);
+    console.log(`unable to save to database ${err}`);
     res.status(500).send({ error: err });
   });
 };
 
 exports.create = (req, res) => {
   const payload = JSON.parse(JSON.stringify(req.body));
-  const employee = new Employees(payload);
   const newEmployee = payload;
+  const employee = Employees(newEmployee);
   employee.save().then((employee) => {
-    console.log('employee saved to database:\n' + employee);
+
+    console.log(`employee saved to database: ${employee}`);
   })
   .catch((err) => {
-    console.log('unable to save to database ' + err);
+    console.log(`unable to save to database ${err}`);
     res.status(500).send({ error: err });
   });
 
@@ -54,10 +56,10 @@ exports.update = (req, res) => {
     isMenager: payload.isMenager,
   },
   }).then((employee) => {
-    console.log('employee updated to database:\n' + employee);
+    console.log(`employee updated to database: ${employee}`);
   })
   .catch((err) => {
-    console.log('unable to save to database ' + err);
+    console.log(`unable to save to database ${err}`);
     res.status(500).send({ error: err });
   });
 
@@ -72,7 +74,7 @@ exports.delete = (req, res) => {
     deletedEmployee = employee;
     employee.remove();
   }).catch((err) => {
-    console.log('unable to save to database ' + err);
+    console.log(`unable to save to database ${err}`);
     res.status(500).send({ error: err });
   });
 

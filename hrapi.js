@@ -2,7 +2,9 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import cors from'cors';
-import employeesController from './Controllers/employees.js';
+import employeesRoute from './Routes/employeeRoutes';
+import positionsRoute from './Routes/positionRoutes';
+
 
 const app = express();
 
@@ -20,16 +22,6 @@ router.get('/v1/', (req, res) => {
   console.log({ message: 'hooray! welcome to our api!' });
   res.json({ message: 'hooray! welcome to our api!' });
 });
-
-router.get('/v1/employees', employeesController.findAll);
-
-router.get('/v1/employees/:employeeId', employeesController.findById);
-
-router.post('/v1/employees', employeesController.create);
-
-router.put('/v1/employees/:employeeId', employeesController.update);
-
-router.delete('/v1/employees/:employeeId', employeesController.delete);
 
 app.on('error', (err) => console.error(err));
 
@@ -58,6 +50,10 @@ app.use(function (req, res, next)
   });
 
 app.use('/api', router);
+app.use('/api/v1/hremployees', employeesRoute);
+app.use('/api/v1/hrpositions', positionsRoute);
+
+
 app.listen(port);
 console.log('==========================================================');
 console.log(`||Beers are served at: http://localhost:${port} ${app.settings.env}'||`);

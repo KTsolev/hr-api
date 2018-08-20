@@ -1,14 +1,16 @@
 import mongoose from 'mongoose';
+import { PositionSchema } from './positionsModel';
 
 const Schema = mongoose.Schema;
 
 const EmployeeSchema = new mongoose.Schema({
-  name: 'string',
-  family: 'string',
-  dateofBirth: 'string',
-  position: 'string',
-  qualifications: 'array',
-  salary: 'number',
-  isMenager: 'boolean',
+  name: { type: String },
+  family: { type: String },
+  dateOfBirth: { type: String },
+  dateOfEmployement: { type: String },
+  position: { type: String },
+  qualifications: { type: Array },
+  salary: { type: Number },
+  isMenager: { type: Boolean },
 });
-module.exports = mongoose.model('Employees', EmployeeSchema);
+module.exports = { Employees: mongoose.model('Employees', EmployeeSchema), EmployeeSchema, };
