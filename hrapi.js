@@ -2,9 +2,9 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import cors from'cors';
-import employeesRoute from './Routes/employeeRoutes';
-import positionsRoute from './Routes/positionRoutes';
-
+import employeesRoute from './Routes/EmployeesRoutes';
+import positionsRoute from './Routes/PositionsRoutes';
+import departmentsRoute from './Routes/DepartmentsRoutes';
 
 const app = express();
 
@@ -52,7 +52,7 @@ app.use(function (req, res, next)
 app.use('/api', router);
 app.use('/api/v1/hremployees', employeesRoute);
 app.use('/api/v1/hrpositions', positionsRoute);
-
+app.use('/api/v1/hrdepartments', departmentsRoute);
 
 app.listen(port);
 console.log('==========================================================');

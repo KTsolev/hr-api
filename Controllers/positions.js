@@ -15,12 +15,12 @@ exports.findById = (req, res) => {
   Positions.findById(positionId).then((position) => {
     console.log(`Found position: ${position}`);
     if (!position) {
-      res.status(404).send({ error: 'Employee not found' });
+      res.status(404).send({ error: 'Position not found' });
     }
 
     res.status(200).send({ success: position });
   }).catch((err) => {
-    console.log(`unable to save to database ${err}`);
+    console.log(`Unable to save to database ${err}`);
     res.status(500).send({ error: err });
   });
 };
@@ -28,15 +28,22 @@ exports.findById = (req, res) => {
 exports.create = (req, res) => {
   const payload = JSON.parse(JSON.stringify(req.body));
   const position = new Positions(payload);
+  const error = position.validateSync();
+
+  if (error) {
+    res.status(500).send({ error: error });
+  }
 
   Employees.find({ position: payload.name }).then((employees) => {
-    position.employees = employees;
-    console.log(position);
-    position.markModified('employees');
+    if (employees && employees.length > 0) {
+      position.employees = employees;
+      console.log(position);
+      position.markModified('employees');
+    }
+
     position.save();
-  })
-  .catch((err) => {
-    console.log(`unable to save to database ${err}`);
+  }).catch((err) => {
+    console.log(`Unable to save to database ${err}`);
     res.status(500).send({ error: err });
   });
 
@@ -46,29 +53,31 @@ exports.create = (req, res) => {
 exports.update = (req, res) => {
   const payload = JSON.parse(JSON.stringify(req.body));
   const { positionId } = req.params;
-  const updatedPosition = payload;
+  const updatedPosition = Positions(payload);
+  const error = updatedPosition.validateSync();
 
-  if (!payload) {
-    return;
+  if (error) {
+    res.status(500).send({ error: error });
   }
 
-  Positions.findByIdAndUpdate({ _id: positionId }, { $set: {
-    name: payload.name,
-    minSalary: payload.minSalary,
-    maxSalary: payload.maxSalary,
-    department: payload.department,
-    description: payload.description,
-    employees: payload.employees,
-  },
-  }).then((position) => {
-    console.log(`position updated to database: ${position}`);
+  Positions.findByIdAndUpdate({ _id: positionId }, {
+      $set: {
+        name: updatedPosition.name,
+        minSalary: updatedPosition.minSalary,
+        maxSalary: updatedPosition.maxSalary,
+        department: updatedPosition.department,
+        description: updatedPosition.description,
+        employees: updatedPosition.employees,
+      },
+    }).then((position) => {
+    console.log(`Position updated to database: ${position}`);
   })
   .catch((err) => {
-    console.log(`unable to save to database ${err}`);
+    console.log(`Unable to save to database ${err}`);
     res.status(500).send({ error: err });
   });
 
-  res.status(200).send({ success: 'Employee has been successfully updated!', updatedPosition });
+  res.status(200).send({ success: 'Position has been successfully updated!', updatedPosition });
 };
 
 exports.delete = (req, res) => {
@@ -79,11 +88,11 @@ exports.delete = (req, res) => {
     deletedPosition = position;
     position.remove();
   }).catch((err) => {
-    console.log(`unable to save to database ${err}`);
+    console.log(`Unable to save to database ${err}`);
     res.status(500).send({ error: err });
   });
 
-  res.status(200).send({ success: 'Employee has been successfully updated!', deletedPosition });
+  res.status(200).send({ success: 'Position has been successfully updated!', deletedPosition });
 };
 
 exports.addEmployeeToPosition = (req, res) => {
@@ -103,11 +112,11 @@ exports.addEmployeeToPosition = (req, res) => {
       }).then((position) => {
       console.log(`Updated position: ${position}`);
     }).catch((err) => {
-      console.log(`unable to save to database ${err}`);
+      console.log(`Unable to save to database ${err}`);
       res.status(500).send({ error: err });
     });
   }).catch((err) => {
-    console.log(`unable to save to database ${err}`);
+    console.log(`Unable to save to database ${err}`);
     res.status(500).send({ error: err });
   });
 
@@ -131,10 +140,10 @@ exports.removeEmployeeFromPosition = (req, res) => {
       }).then((position) => {
       console.log(`Updated position: ${position}`);
     }).catch((err) => {
-      console.log(`unable to save to database ${err}`);
+      console.log(`Unable to save to database ${err}`);
       res.status(500).send({ error: err });
     });
   });
 
-  res.status(200).send({ success: 'Employee has been successfully added!' });
+  res.status(200).send({ success: 'Employee has been successfully removed!' });
 };

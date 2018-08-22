@@ -1,5 +1,4 @@
 import { Employees } from '../Models/employeesModel';
-import { Positions } from '../Models/positionsModel';
 
 exports.findAll = (req, res) => {
   Employees.find({}).exec((err, employees) => {
@@ -28,11 +27,16 @@ exports.create = (req, res) => {
   const payload = JSON.parse(JSON.stringify(req.body));
   const newEmployee = payload;
   const employee = Employees(newEmployee);
+  const error = employee.validateSync();
+
+  if (error) {
+    res.status(500).send({ error: error });
+  }
+
   employee.save().then((employee) => {
 
     console.log(`employee saved to database: ${employee}`);
-  })
-  .catch((err) => {
+  }).catch((err) => {
     console.log(`unable to save to database ${err}`);
     res.status(500).send({ error: err });
   });
@@ -43,19 +47,24 @@ exports.create = (req, res) => {
 exports.update = (req, res) => {
   const payload = JSON.parse(JSON.stringify(req.body));
   const { employeeId } = req.params;
-  console.log(payload);
+  const employee = Employees(payload);
+  const error = employee.validateSync();
 
-  const updatedEmployee = payload;
-  Employees.findByIdAndUpdate({ _id: employeeId }, { $set: {
-    name: payload.name,
-    family: payload.family,
-    dateofBirth: payload.dateofBirth,
-    position: payload.position,
-    qualifications: payload.qualifications,
-    salary: payload.salary,
-    isMenager: payload.isMenager,
-  },
-  }).then((employee) => {
+  if (error) {
+    res.status(500).send({ error: error });
+  }
+
+  Employees.findByIdAndUpdate({ _id: employeeId }, {
+      $set: {
+        name: employee.name,
+        family: employee.family,
+        dateofBirth: employee.dateofBirth,
+        position: employee.position,
+        qualifications: employee.qualifications,
+        salary: employee.salary,
+        isMenager: employee.isMenager,
+      },
+    }).then((employee) => {
     console.log(`employee updated to database: ${employee}`);
   })
   .catch((err) => {
@@ -63,7 +72,7 @@ exports.update = (req, res) => {
     res.status(500).send({ error: err });
   });
 
-  res.status(200).send({ success: 'Employee has been successfully updated!', updatedEmployee });
+  res.status(200).send({ success: 'Employee has been successfully updated!', employee });
 };
 
 exports.delete = (req, res) => {
